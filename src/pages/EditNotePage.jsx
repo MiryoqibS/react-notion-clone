@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useNavigate, useParams } from "react-router-dom"
 import { useContext, useEffect, useRef, useState } from "react";
-import { pagesContext } from "../context/pagesContext";
+import { notesContext } from "../context/notesContext";
 
 // Иконки
 import { BsThreeDots } from "react-icons/bs"
@@ -10,7 +11,7 @@ import { EmojiPicker } from "../components/EmojiPicker";
 
 export const EditNotePage = () => {
     const emptyNote = { title: "", note: null, cover: null }
-    const { findNote, updateNote } = useContext(pagesContext);
+    const { findNote, updateNote } = useContext(notesContext);
     const { id } = useParams();
     const [note, setNote] = useState({ ...emptyNote });
     const navigate = useNavigate();
@@ -25,10 +26,14 @@ export const EditNotePage = () => {
     };
     const onCloseEmojiPicker = () => setShowEmojiPicker(false);
 
-    const setCoverButton = useRef(null);
     const coverInputRef = useRef(null);
-    const [cover, setCover] = useState(note.cover);
+    const handleSelectCover = (file) => {
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        setUpdatedNote(prev => ({ ...prev, cover: url }));
+    };
 
+    // поиск заметки
     useEffect(() => {
         const finedNote = findNote(id);
         if (!finedNote) navigate("/");
@@ -36,13 +41,17 @@ export const EditNotePage = () => {
         setUpdatedNote(finedNote);
     }, [id, findNote]);
 
-    const handleUpdateTitle = (title) => {
-        setUpdatedNote(prev => {
-            const newNote = { ...prev, title };
-            updateNote(id, newNote);
-            return newNote;
-        });
-    };
+    // Обновление контекста в зависимости от обновлённой заметки
+    useEffect(() => {
+        if (!updatedNote) return;
+        const timerId = setTimeout(() => {
+            updateNote(id, updatedNote);
+        }, 300);
+
+        return () => clearTimeout(timerId);
+    }, [updatedNote]);
+
+    const handleUpdateTitle = (title) => setUpdatedNote(prev => ({ ...prev, title }));
 
     return (
         <div className="flex flex-col gap-10">
@@ -60,8 +69,8 @@ export const EditNotePage = () => {
                 </div>
             </header>
 
-            {cover && (
-                <img src={cover} className="h-[400px] w-full object-cover object-top" />
+            {updatedNote.cover && (
+                <img src={updatedNote.cover} className="h-[400px] w-full object-cover object-top" />
             )}
 
             <div className="flex flex-col gap-4 w-full max-w-[600px] mx-auto">
@@ -92,7 +101,7 @@ export const EditNotePage = () => {
                         </button>
                     )}
 
-                    {!cover && (
+                    {!updatedNote.cover && (
                         <button
                             className="flex items-center gap-3 bg-white px-3 py-1 border text-gray-700 font-medium border-black/10 shadow-xl rounded-xl"
                             onClick={() => coverInputRef?.current?.click()}
@@ -107,12 +116,7 @@ export const EditNotePage = () => {
                         ref={coverInputRef}
                         accept="image/*"
                         className="hidden"
-                        onChange={(e) => {
-                            const file = e.target.files[0];
-                            if (!file) return;
-                            const url = URL.createObjectURL(file);
-                            setCover(url);
-                        }}
+                        onChange={e => handleSelectCover(e.target.files[0])}
                     />
 
                 </header>

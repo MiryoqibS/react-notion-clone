@@ -1,4 +1,4 @@
-# 📘 Note App — React Project
+# 📘 Notion Clone
 
 ---
 
