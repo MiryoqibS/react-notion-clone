@@ -21,6 +21,7 @@ export const NotesProvider = ({ children }) => {
             title: "Untitled",
             cover: null,
             emoji: null,
+            blocks: []
         }]);
         return id;
     };
