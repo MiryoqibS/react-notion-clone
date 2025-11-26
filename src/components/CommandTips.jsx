@@ -25,6 +25,11 @@ export const CommandTips = ({ top, left }) => {
             description: "Create a numbered list",
             syntax: "/numbered"
         },
+        {
+            title: "Underline text",
+            description: "Create a underline text",
+            syntax: "/underline"
+        },
     ];
 
     return (

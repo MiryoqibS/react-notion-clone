@@ -6,7 +6,7 @@ export const Layout = () => {
         <div className="flex flex-row w-full">
             <Sidebar />
 
-            <main className="px-6 w-full">
+            <main className="w-full">
                 <Outlet />
             </main>
         </div>
